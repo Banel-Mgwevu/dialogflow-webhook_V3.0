@@ -4,7 +4,10 @@ const nodemailer = require("nodemailer");
 
 // const { PDFDocument } = require('pdf-lib');
 
+const htmlToPDF = require('html-pdf');
 const PDFDocument = require('pdfkit');
+const doc = new PDFDocument();
+
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 
@@ -20,14 +23,33 @@ app.get("/", (req, res) => {
 
 app.post("/", express.json(), (req, res) => {
 
-  async function generatePdfFromHtml(html) {   //GENERATES HTML STRING TO PDF HERE
+  
+  /*  async function generatePdfFromHtml(html) {   //GENERATES HTML STRING TO PDF HERE
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html);
     const pdf = await page.pdf({ format: 'A4' });
     await browser.close();
     return pdf;
+  }*/
+
+
+  async function generatePDF(htmlString) {
+    const doc = new PDFDocument();
+  
+    return new Promise((resolve, reject) => {
+      htmlToPDF.create(htmlString).toStream((err, stream) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+  
+        resolve(stream);
+      });
+    });
   }
+
+
   
   const agent = new WebhookClient({ request: req, response: res });
 
@@ -391,16 +413,16 @@ app.post("/", express.json(), (req, res) => {
 
 
  	  // create reusable transporter object using the default SMTP transport
-  	
-     generatePdfFromHtml(strPDF)
+  	 generatePDF(strPDF)
+ //    generatePdfFromHtml(strPDF)
      .then(pdf => {
     let transporter = nodemailer.createTransport({
     	host: "mail.softmeet.co.za",
     	port: 465,
     	secure: true, // true for 465, false for other ports
     	auth: {
-      	user: 'banele@softmeet.co.za', // your cPanel email address
-      	pass: 'Tryagain@47', // your cPanel email password
+      	user: 'moloko@softmeet.co.za', // your cPanel email address
+      	pass: '10108642mP#', // your cPanel email password
     	},
   		});
 
@@ -429,6 +451,7 @@ app.post("/", express.json(), (req, res) => {
     agent.add(response);
   }
   async function sayHello(agent) {
+
 
       const HelloRes=`Welcome to SoftApplication Bot. Here you can build and personalized CV with us and send it to your prosepective employer. Just answer a few easy questions. Type "Start" to Continue`;
       
